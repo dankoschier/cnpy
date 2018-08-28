@@ -1,4 +1,5 @@
-# Purpose:
+
+# cnpy
 
 NumPy offers the `save` method for easy saving of arrays into .npy and `savez` for zipping multiple .npy arrays together into a .npz file. 
 
@@ -25,11 +26,7 @@ To specify a different directory, add `-DCMAKE_INSTALL_PREFIX=/path/to/install/d
 
 # Using:
 
-To use, `#include"cnpy.h"` in your source code. Compile the source code mycode.cpp as
-
-```bash
-g++ -o mycode mycode.cpp -L/path/to/install/dir -lcnpy -lz --std=c++11
-```
+Simply include the file `cnpy.h` in your source code. Make sure that C++17 is enabled.
 
 # Description:
 
