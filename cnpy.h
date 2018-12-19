@@ -67,7 +67,7 @@ struct NpyArray
 
 using npz_t = std::map<std::string, NpyArray>;
 
-constexpr char is_big_endian()
+inline constexpr char is_big_endian()
 {
     auto x = 1;
     return (((char *)&x)[0]) ? '<' : '>';
@@ -75,7 +75,7 @@ constexpr char is_big_endian()
 
 template <typename T>
 std::vector<char> create_npy_header(const std::vector<size_t> &shape);
-void parse_npy_header(FILE *fp, size_t &word_size, std::vector<size_t> &shape, bool &fortran_order)
+inline void parse_npy_header(FILE *fp, size_t &word_size, std::vector<size_t> &shape, bool &fortran_order)
 {
     char buffer[256];
     size_t res = fread(buffer, sizeof(char), 11, fp);
@@ -128,7 +128,7 @@ void parse_npy_header(FILE *fp, size_t &word_size, std::vector<size_t> &shape, b
     word_size = atoi(str_ws.substr(0, loc2).c_str());
 }
 
-void parse_npy_header(unsigned char *buffer, size_t &word_size, std::vector<size_t> &shape, bool &fortran_order)
+inline void parse_npy_header(unsigned char *buffer, size_t &word_size, std::vector<size_t> &shape, bool &fortran_order)
 {
     //std::string magic_string(buffer,6);
     uint8_t major_version = *reinterpret_cast<uint8_t *>(buffer + 6);
@@ -172,7 +172,7 @@ void parse_npy_header(unsigned char *buffer, size_t &word_size, std::vector<size
     word_size = atoi(str_ws.substr(0, loc2).c_str());
 }
 
-void parse_zip_footer(FILE *fp, uint16_t &nrecs, size_t &global_header_size, size_t &global_header_offset)
+inline void parse_zip_footer(FILE *fp, uint16_t &nrecs, size_t &global_header_size, size_t &global_header_offset)
 {
     std::vector<char> footer(22);
     fseek(fp, -22, SEEK_END);
@@ -197,7 +197,7 @@ void parse_zip_footer(FILE *fp, uint16_t &nrecs, size_t &global_header_size, siz
 
 #ifdef CNPY_USE_ZLIB
 
-NpyArray load_the_npz_array(FILE *fp, uint32_t compr_bytes, uint32_t uncompr_bytes)
+inline NpyArray load_the_npz_array(FILE *fp, uint32_t compr_bytes, uint32_t uncompr_bytes)
 {
     std::vector<unsigned char> buffer_compr(compr_bytes);
     std::vector<unsigned char> buffer_uncompr(uncompr_bytes);
@@ -238,7 +238,7 @@ NpyArray load_the_npz_array(FILE *fp, uint32_t compr_bytes, uint32_t uncompr_byt
 
 #endif
 
-NpyArray load_the_npy_file(FILE *fp)
+inline NpyArray load_the_npy_file(FILE *fp)
 {
     std::vector<size_t> shape;
     size_t word_size;
@@ -252,7 +252,7 @@ NpyArray load_the_npy_file(FILE *fp)
     return arr;
 }
 
-npz_t npz_load(std::string fname)
+inline npz_t npz_load(std::string fname)
 {
     FILE *fp = fopen(fname.c_str(), "rb");
 
@@ -316,7 +316,7 @@ npz_t npz_load(std::string fname)
     return arrays;
 }
 
-NpyArray npz_load(std::string fname, std::string varname)
+inline NpyArray npz_load(std::string fname, std::string varname)
 {
     FILE *fp = fopen(fname.c_str(), "rb");
 
@@ -382,7 +382,7 @@ NpyArray npz_load(std::string fname, std::string varname)
     throw std::runtime_error("npz_load: Variable name " + varname + " not found in " + fname);
 }
 
-NpyArray npy_load(std::string fname)
+inline NpyArray npy_load(std::string fname)
 {
     FILE *fp = fopen(fname.c_str(), "rb");
 
@@ -396,7 +396,7 @@ NpyArray npy_load(std::string fname)
 }
 
 template <typename T>
-std::vector<char> &operator+=(std::vector<char> &lhs, const T rhs)
+inline std::vector<char> &operator+=(std::vector<char> &lhs, const T rhs)
 {
     //write in little endian
     for (size_t byte = 0; byte < sizeof(T); byte++)
@@ -408,14 +408,14 @@ std::vector<char> &operator+=(std::vector<char> &lhs, const T rhs)
 }
 
 template <>
-std::vector<char> &operator+=(std::vector<char> &lhs, const std::string rhs)
+inline std::vector<char> &operator+=(std::vector<char> &lhs, const std::string rhs)
 {
     lhs.insert(lhs.end(), rhs.begin(), rhs.end());
     return lhs;
 }
 
 template <>
-std::vector<char> &operator+=(std::vector<char> &lhs, const char *rhs)
+inline std::vector<char> &operator+=(std::vector<char> &lhs, const char *rhs)
 {
     //write in little endian
     size_t len = strlen(rhs);
@@ -428,7 +428,7 @@ std::vector<char> &operator+=(std::vector<char> &lhs, const char *rhs)
 }
 
 template <typename T>
-void npy_save(std::string fname, const T *data, const std::vector<size_t> shape, std::string mode = "w")
+inline void npy_save(std::string fname, const T *data, const std::vector<size_t> shape, std::string mode = "w")
 {
     FILE *fp = NULL;
     std::vector<size_t> true_data_shape; //if appending, the shape of existing + new data
@@ -481,7 +481,7 @@ void npy_save(std::string fname, const T *data, const std::vector<size_t> shape,
     fclose(fp);
 }
 
-uint32_t crc32_(uint32_t crc, const uint8_t *buf, size_t len)
+inline uint32_t crc32_(uint32_t crc, const uint8_t *buf, size_t len)
 {
     int k;
 
@@ -496,7 +496,7 @@ uint32_t crc32_(uint32_t crc, const uint8_t *buf, size_t len)
 }
 
 template <typename T>
-void npz_save(std::string zipname, std::string fname, const T *data, const std::vector<size_t> &shape, std::string mode = "w")
+inline void npz_save(std::string zipname, std::string fname, const T *data, const std::vector<size_t> &shape, std::string mode = "w")
 {
     //first, append a .npy to the fname
     fname += ".npy";
@@ -591,7 +591,7 @@ void npz_save(std::string zipname, std::string fname, const T *data, const std::
 }
 
 template <typename T>
-void npy_save(std::string fname, const std::vector<T> data, std::string mode = "w")
+inline void npy_save(std::string fname, const std::vector<T> data, std::string mode = "w")
 {
     std::vector<size_t> shape;
     shape.push_back(data.size());
@@ -599,7 +599,7 @@ void npy_save(std::string fname, const std::vector<T> data, std::string mode = "
 }
 
 template <typename T>
-void npz_save(std::string zipname, std::string fname, const std::vector<T> data, std::string mode = "w")
+inline void npz_save(std::string zipname, std::string fname, const std::vector<T> data, std::string mode = "w")
 {
     std::vector<size_t> shape;
     shape.push_back(data.size());
@@ -607,7 +607,7 @@ void npz_save(std::string zipname, std::string fname, const std::vector<T> data,
 }
 
 template <typename T>
-constexpr char map_type()
+inline constexpr char map_type()
 {
     if (std::is_floating_point<T>::value)
     {
@@ -639,7 +639,7 @@ constexpr char map_type()
 }
 
 template <typename T>
-std::vector<char>
+inline std::vector<char>
 create_npy_header(const std::vector<size_t> &shape)
 {
 
