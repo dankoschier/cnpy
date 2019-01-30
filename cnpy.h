@@ -69,7 +69,7 @@ using npz_t = std::map<std::string, NpyArray>;
 
 inline constexpr char is_big_endian()
 {
-    auto x = 1;
+    auto const x = 1;
     return (((char *)&x)[0]) ? '<' : '>';
 }
 
@@ -609,11 +609,11 @@ inline void npz_save(std::string zipname, std::string fname, const std::vector<T
 template <typename T>
 inline constexpr char map_type()
 {
-    if (std::is_floating_point<T>::value)
+    if constexpr (std::is_floating_point<T>::value)
     {
         return 'f';
     }
-    if (std::is_integral<T>::value)
+    if constexpr (std::is_integral<T>::value)
     {
         if (std::is_signed<T>::value)
         {
@@ -624,11 +624,11 @@ inline constexpr char map_type()
             return 'u';
         }
     }
-    if (std::is_same<T, bool>::value)
+    if constexpr (std::is_same<T, bool>::value)
     {
         return 'b';
     }
-    if (std::is_same<std::complex<double>, T>::value ||
+    if constexpr (std::is_same<std::complex<double>, T>::value ||
         std::is_same<std::complex<long double>, T>::value ||
         std::is_same<std::complex<float>, T>::value)
     {
